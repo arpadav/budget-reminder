@@ -1,0 +1,976 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* ═══════════════════════════════════════════════════════════
+           BASE / RESET
+           ═══════════════════════════════════════════════════════════ */
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #2d2a26;
+            background: #faf8f5;
+            line-height: 1.5;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           TYPOGRAPHY
+           ═══════════════════════════════════════════════════════════ */
+        .section-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #7a756e;
+            margin-bottom: 12px;
+        }
+
+        .muted {
+            color: #7a756e;
+        }
+
+        .text-sm {
+            font-size: 12px;
+        }
+
+        .text-bold {
+            font-weight: 600;
+        }
+
+        .text-heavy {
+            font-weight: 700;
+        }
+
+        .nowrap {
+            white-space: nowrap;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           LAYOUT
+           ═══════════════════════════════════════════════════════════ */
+        .header-border {
+            border-bottom: 2px solid #2d2a26;
+            padding-bottom: 0;
+            margin-bottom: 15px;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid #e8e4df;
+            margin: 20px 0;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           CARDS & ALERTS
+           ═══════════════════════════════════════════════════════════ */
+        .card {
+            background: #fff;
+            border: 1px solid #e8e4df;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .card-compact {
+            padding: 14px 16px;
+        }
+
+        .alert {
+            padding: 12px 14px;
+            margin-bottom: 16px;
+            border-radius: 0 8px 8px 0;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #e8f5ee;
+            border-left: 4px solid #38a169;
+        }
+
+        .alert-warning {
+            background: #fefcbf;
+            border-left: 4px solid #d69e2e;
+        }
+
+        .alert-error {
+            background: #fed7d7;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .alert-info {
+            background: #eef4fb;
+            border-left: 4px solid #4a90e2;
+        }
+
+        .footer {
+            background: #edeae7;
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-size: 12px;
+            color: #736e67;
+            margin-top: 20px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           TABLES
+           ═══════════════════════════════════════════════════════════ */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .table-header {
+            background: #f7f5f2;
+        }
+
+        .table-header th {
+            padding: 10px 8px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: #7a756e;
+            border-bottom: 1px solid #e8e4df;
+        }
+
+        .table-cell {
+            padding: 10px 8px;
+            border-bottom: 1px solid #f2efeb;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           BADGES & INDICATORS
+           ═══════════════════════════════════════════════════════════ */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-bill {
+            background: #fff7ed;
+            color: #ea580c;
+        }
+
+        .badge-saving {
+            background: #f3edff;
+            color: #6b46c1;
+        }
+
+        .color-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           BUDGET PROGRESS INDICATORS
+           ═══════════════════════════════════════════════════════════ */
+        .progress-title {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+
+        .progress-pct {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 6px 0;
+            text-align: center;
+        }
+
+        .progress-subtitle {
+            font-size: 11px;
+            color: #7a756e;
+            margin-top: 6px;
+            line-height: 1.3;
+            text-align: center;
+        }
+
+        .progress-bar-track {
+            border-radius: 4px;
+            height: 8px;
+            padding: 0;
+        }
+
+        .progress-bar-fill {
+            border-radius: 4px;
+            height: 8px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           TRANSFERS
+           ═══════════════════════════════════════════════════════════ */
+        .transfer-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f2efeb;
+        }
+
+        .transfer-item {
+            background: #faf8f5;
+            border-radius: 8px;
+            padding: 12px 14px;
+            border-left: 3px solid #7a756e;
+            margin-bottom: 8px;
+        }
+
+        .transfer-badge {
+            background: #fff;
+            border: 1px solid #e8e4df;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #2d2a26;
+        }
+
+        .transfer-arrow {
+            color: #7a756e;
+            font-size: 18px;
+            font-weight: 700;
+            padding: 0 4px;
+        }
+
+        .transfer-amount {
+            font-weight: 700;
+            font-size: 16px;
+            color: #2d2a26;
+            white-space: nowrap;
+        }
+
+        .transfer-breakdown {
+            margin-top: 8px;
+            background: #fff;
+            border: 1px solid #e8e4df;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 12px;
+        }
+
+        .transfer-breakdown-header {
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #7a756e;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           BUDGET BREAKDOWN ROW (income, bills, savings, etc.)
+           ═══════════════════════════════════════════════════════════ */
+        .breakdown-row {
+            padding: 10px 0;
+            border-bottom: 1px solid #f2efeb;
+        }
+
+        .breakdown-row-total {
+            padding: 12px 0 4px;
+            border-top: 2px solid #2d2a26;
+        }
+
+        .breakdown-amount {
+            display: inline-block;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           ATTENTION TABLE (accounts needing attention)
+           ═══════════════════════════════════════════════════════════ */
+        .attn-th {
+            padding: 4px 6px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: #92600e;
+            font-weight: 600;
+        }
+
+        .attn-td {
+            padding: 6px;
+            border-bottom: 1px solid rgba(210, 170, 60, 0.25);
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           PROGRESSIVE ENHANCEMENT (hover, transitions)
+           Only works in Apple Mail, some webmail — degrades gracefully
+           ═══════════════════════════════════════════════════════════ */
+        @media screen and (-webkit-min-device-pixel-ratio: 0) {
+            .transfer-item:hover {
+                background-color: #f7f5f2 !important;
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           MOBILE RESPONSIVE
+           Supported by Apple Mail, Gmail app, Yahoo, Outlook apps.
+           Falls back gracefully in desktop Outlook (ignores @media).
+           ═══════════════════════════════════════════════════════════ */
+        @media only screen and (max-width: 600px) {
+            body {
+                padding: 12px !important;
+            }
+
+            .card,
+            .card-compact {
+                padding: 12px !important;
+            }
+
+            /* Stack the 4 progress indicators into a 2×2 grid */
+            .progress-cell {
+                display: block !important;
+                width: 50% !important;
+                float: left !important;
+                box-sizing: border-box !important;
+                padding: 8px 4px !important;
+            }
+
+            .progress-pct {
+                font-size: 24px !important;
+            }
+
+            .progress-title {
+                font-size: 12px !important;
+            }
+
+            .progress-subtitle {
+                font-size: 10px !important;
+            }
+
+            /* Stack "What You Can Spend" table for readability */
+            .data-table {
+                font-size: 13px !important;
+            }
+
+            .table-cell,
+            .table-header th {
+                padding: 8px 4px !important;
+                font-size: 11px !important;
+            }
+
+            /* Transfer badges: smaller on mobile */
+            .transfer-badge {
+                padding: 3px 6px !important;
+                font-size: 11px !important;
+            }
+
+            .transfer-arrow {
+                font-size: 14px !important;
+            }
+
+            .transfer-amount {
+                font-size: 14px !important;
+            }
+
+            /* Accounts attention table: let it scroll if needed */
+            .attn-th,
+            .attn-td {
+                padding: 4px 3px !important;
+                font-size: 10px !important;
+            }
+
+            /* Footer */
+            .footer {
+                font-size: 11px !important;
+                padding: 12px !important;
+            }
+
+            .footer a {
+                word-break: break-all;
+            }
+
+            /* General font scaling */
+            h2 {
+                font-size: 20px !important;
+            }
+        }
+
+        /* Extra-small phones */
+        @media only screen and (max-width: 400px) {
+            .progress-cell {
+                width: 100% !important;
+                float: none !important;
+            }
+
+            .transfer-badge {
+                padding: 2px 5px !important;
+                font-size: 10px !important;
+            }
+        }
+    </style>
+</head>
+
+<body style="font-family: 'Segoe UI', Arial, sans-serif;
+             max-width: 680px;
+             margin: 0 auto;
+             padding: 20px;
+             color: #2d2a26;
+             background: #faf8f5;
+             line-height: 1.5;">
+
+    {# ═══════════ HEADER ═══════════ #}
+    <div class="header-border">
+        <h2 style="margin: 0 0 4px 0; font-size: 24px; color: #2d2a26;">
+            {{ meta.name }}'s Budget
+        </h2>
+
+        {# ═══════════ TIMELINE ═══════════ #}
+        <div class="card card-compact" style="font-size: 14px;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 14px;">
+                <tr>
+                    <td class="muted" style="padding: 2px 0;">Today</td>
+                    <td align="right" class="text-bold">{{ today.strftime("%A, %b %d") }}</td>
+                </tr>
+                <tr>
+                    <td class="muted" style="padding: 2px 0;">Period</td>
+                    <td align="right" class="text-bold">
+                        {{ start_date.strftime("%b %d") }} - {{ end_date.strftime("%b %d, %Y") }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="muted" style="padding: 2px 0;">Days left</td>
+                    <td align="right" class="text-bold">{{ days_left }} days (including today)</td>
+                </tr>
+            </table>
+        </div>
+
+
+        {# ═══════════ STATUS BANNER ═══════════ #}
+        {% if budget_stats.overspent_hard %}
+        <div class="alert alert-error">
+            <strong style="color: #c53030;">Over budget.</strong> Spending has exceeded the plan.
+        </div>
+        {% elif budget_stats.overspent_soft %}
+        <div class="alert alert-warning">
+            <strong style="color: #b7791f;">Heads up - getting close to the limit.</strong> Maybe review spending or
+            bump up
+            your budget if you can.
+        </div>
+        {% else %}
+        <div class="alert alert-success">
+            <strong style="color: #2e7d5b;">On track!</strong> Looking good.
+        </div>
+        {% endif %}
+
+        {# ── Budget Warnings ── #}
+        {% if budget_stats.budget_after_withheld_and_spending < 0 %} <div class="alert alert-error"
+            style="font-size: 13px; color: #7b2020;">
+            <strong>Budget exceeds income!</strong>
+            <br>
+            You need to cut <strong style="color: #c53030;">${{
+                "{:,.2f}".format(-budget_stats.budget_after_withheld_and_spending) }}</strong> from your budget to make
+            this work.
+    </div>
+    {% endif %}
+
+    {% if budget_stats.allocated_spending_budget > budget_stats.budget_after_withheld %}
+    <div class="alert alert-warning" style="font-size: 13px; color: #744210;">
+        <strong> Note:</strong> After bills and savings, you actually have
+        <strong>${{ "{:,.2f}".format(budget_stats.budget_after_withheld) }}</strong> available for spending
+        (not the full ${{ "{:,.2f}".format(budget_stats.allocated_spending_budget) }} you budgeted).
+        Try to cap spending at the lower amount.
+    </div>
+    {% endif %}
+
+    {# ═══════════ HOROSCOPE ═══════════ #}
+    {% if horoscope %}
+    <div class="alert alert-info">
+        <a href="{{ horoscope_url|safe }}" target="_blank" rel="noopener noreferrer" title="Read More! I love you"
+            style="color: #2c5aa0; text-decoration: underline; font-size: 13px; font-weight: 600;">
+            Your horoscope for today <i>({{ today.strftime('%B %d, %Y') }})</i>
+        </a>
+        <p style="margin: 6px 0 0 0; font-style: italic; color: #555; font-size: 14px;">{{ horoscope }}</p>
+    </div>
+    {% endif %}
+
+    </div>
+
+    {# ═══════════════════════════════════════════════════════ #}
+    {# ═══════════ DUE SOON ════════════════════════════════ #}
+    {# ═══════════════════════════════════════════════════════ #}
+    {% set due_soon_items = [] %}
+    {% for b in budgets if b.expense_type.name in ["RequiredPayment", "Saving"] %}
+    {% set amt = (b.amount / b.timeframe) * period_size %}
+    {% if amt != 0 and b.next_approx_payment is not none %}
+    {% set days_until_due = (b.next_approx_payment.toordinal() - today.toordinal()) %}
+    {% if days_until_due >= 0 and days_until_due <= 5 %} {% set _=due_soon_items.append(b) %} {% endif %} {% endif %} {%
+        endfor %} {% if due_soon_items|length> 0 %}
+        <div class="card">
+            <div class="section-label">
+                Due Soon (Next 5 Days)
+            </div>
+
+            <table class="data-table" style="font-size: 13px;">
+                <tr class="table-header">
+                    <th align="left">Due Date</th>
+                    <th align="left">Type</th>
+                    <th align="left">Item</th>
+                    <th align="right">Amount</th>
+                </tr>
+                {% for b in due_soon_items %}
+                {% set today_day = today.toordinal() %}
+                <tr>
+                    <td align="left" class="table-cell"
+                        style="font-size: 12px; {% if b.next_approx_payment.toordinal() == today_day %}font-weight:700; color:#c53030;{% elif b.next_approx_payment.toordinal() == today_day + 1 %}font-weight:700; color:#c53030;{% else %}color:#d69e2e;{% endif %}">
+                        {% if b.next_approx_payment.toordinal() == today_day %}
+                        <strong>Today</strong>
+                        {% elif b.next_approx_payment.toordinal() == today_day + 1 %}
+                        <strong>Tomorrow</strong>
+                        {% else %}
+                        {{ b.next_approx_payment.strftime('%A, %b %d') }}
+                        {% endif %}
+                    </td>
+                    <td class="table-cell">
+                        <span
+                            class="badge {% if b.expense_type.name == 'RequiredPayment' %}badge-bill{% else %}badge-saving{% endif %}">
+                            {{ "Bill" if b.expense_type.name == "RequiredPayment" else "Saving" }}
+                        </span>
+                    </td>
+                    <td class="table-cell">
+                        {% if b.subcategory %}
+                        {{ b.subcategory }} // {{ b.description }}
+                        {% else %}
+                        {{ b.category }} // {{ b.description }}
+                        {% endif %}
+                    </td>
+                    <td align="right" class="table-cell nowrap" style="font-weight: 600; color: #ea580c;">
+                        ${{ "{:,.2f}".format(b.amount) }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <hr class="divider">
+        {% endif %}
+
+        {# ═══════════════════════════════════════════════════════ #}
+        {# ═══════════ BUDGET USAGE AT A GLANCE ═════════════════ #}
+        {# ═══════════════════════════════════════════════════════ #}
+
+        <div class="card" style="margin-bottom: 20px;">
+            <div class="section-label" style="margin-bottom: 16px;">
+                Budget Usage at a Glance
+            </div>
+
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                    {# Bills #}
+                    <td width="25%" valign="top" align="center" class="progress-cell" style="padding: 10px;">
+                        {% set bills_pct = (bills_this_period / budget_stats.total_withheld_required_payments * 100) if
+                        budget_stats.total_withheld_required_payments > 0 else 0 %}
+                        {% set bills_pct = [bills_pct, 100]|min %}
+                        {% set bills_display = [bills_this_period, budget_stats.total_withheld_required_payments]|min %}
+                        <div class="progress-title" style="color: #ea580c;">Bills &amp; Must-Pays</div>
+                        <div class="progress-pct" style="color: #ea580c;">{{ "%.0f"|format(bills_pct) }}%</div>
+                        <table cellpadding="0" cellspacing="0" style="width: 80%; max-width: 120px; margin: 0 auto;">
+                            <tr>
+                                <td class="progress-bar-track" style="background: #fed7aa;">
+                                    <div class="progress-bar-fill" style="background: #ea580c; width: {{ "
+                                        %.0f"|format(bills_pct) }}%; {% if bills_pct> 0 %}min-width: 4px;{% endif %}">
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="progress-subtitle">
+                            <strong style="color: #ea580c;">${{ "{:,.2f}".format(bills_display) }}</strong> of
+                            ${{ "{:,.2f}".format(budget_stats.total_withheld_required_payments) }}
+                        </div>
+                    </td>
+
+                    {# Savings #}
+                    <td width="25%" valign="top" align="center" class="progress-cell" style="padding: 10px;">
+                        {% set savings_pct = (savings_this_period / budget_stats.total_withheld_savings * 100) if
+                        budget_stats.total_withheld_savings > 0 else 0 %}
+                        {% set savings_pct = [savings_pct, 100]|min %}
+                        {% set savings_display = [savings_this_period, budget_stats.total_withheld_savings]|min %}
+                        <div class="progress-title" style="color: #6b46c1;">Savings Goals</div>
+                        <div class="progress-pct" style="color: #6b46c1;">{{ "%.0f"|format(savings_pct) }}%</div>
+                        <table cellpadding="0" cellspacing="0" style="width: 80%; max-width: 120px; margin: 0 auto;">
+                            <tr>
+                                <td class="progress-bar-track" style="background: #e9d5ff;">
+                                    <div class="progress-bar-fill" style="background: #6b46c1; width: {{ "
+                                        %.0f"|format(savings_pct) }}%; {% if savings_pct> 0 %}min-width: 4px;{% endif
+                                        %}"></div>
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="progress-subtitle">
+                            <strong style="color: #6b46c1;">${{ "{:,.2f}".format(savings_display) }}</strong> of
+                            ${{ "{:,.2f}".format(budget_stats.total_withheld_savings) }}
+                        </div>
+                    </td>
+
+                    {# Spending #}
+                    <td width="25%" valign="top" align="center" class="progress-cell" style="padding: 10px;">
+                        {% set spending_pct = (spending_this_period / budget_stats.allocated_spending_budget * 100) if
+                        budget_stats.allocated_spending_budget > 0 else 0 %}
+                        {% set spending_pct = [spending_pct, 100]|min %}
+                        <div class="progress-title" style="color: #2b6cb0;">Spending Money</div>
+                        <div class="progress-pct" style="color: #2b6cb0;">{{ "%.0f"|format(spending_pct) }}%</div>
+                        <table cellpadding="0" cellspacing="0" style="width: 80%; max-width: 120px; margin: 0 auto;">
+                            <tr>
+                                <td class="progress-bar-track" style="background: #bfdbfe;">
+                                    <div class="progress-bar-fill" style="background: #2b6cb0; width: {{ "
+                                        %.0f"|format(spending_pct) }}%; {% if spending_pct> 0 %}min-width: 4px;{% endif
+                                        %}"></div>
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="progress-subtitle">
+                            <strong style="color: #2b6cb0;">${{ "{:,.2f}".format(spending_this_period) }}</strong> of
+                            ${{ "{:,.2f}".format(budget_stats.allocated_spending_budget) }}
+                        </div>
+                    </td>
+
+                    {# Overflow #}
+                    <td width="25%" valign="top" align="center" class="progress-cell" style="padding: 10px;">
+                        {% set overflow_is_overspent = overflow_pct > 100 %}
+                        {% set overflow_color = "#c53030" if overflow_is_overspent else "#2d2a26" %}
+                        {% set bar_bg = "#fecaca" if overflow_is_overspent else "#e5e7eb" %}
+                        {% set bar_fill = "#c53030" if overflow_is_overspent else "#2d2a26" %}
+                        {% set bar_width = [overflow_pct, 100]|min %}
+                        <div class="progress-title" style="color: {{ overflow_color }};">Overflow</div>
+                        <div class="progress-pct" style="color: {{ overflow_color }};">{{ "%.0f"|format(overflow_pct)
+                            }}%</div>
+                        <table cellpadding="0" cellspacing="0" style="width: 80%; max-width: 120px; margin: 0 auto;">
+                            <tr>
+                                <td class="progress-bar-track" style="background: {{ bar_bg }};">
+                                    <div class="progress-bar-fill" style="background: {{ bar_fill }}; width: {{ "
+                                        %.0f"|format(bar_width) }}%; {% if bar_width> 0 %}min-width: 4px;{% endif
+                                        %}"></div>
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="progress-subtitle">
+                            {% if overflow_consumed > 0 %}
+                            <strong style="color: {{ overflow_color }};">${{ "{:,.2f}".format(overflow_consumed)
+                                }}</strong> of
+                            ${{ "{:,.2f}".format(overflow_available) }}
+                            {% else %}
+                            <strong style="color: {{ overflow_color }};">${{ "{:,.2f}".format(overflow_available)
+                                }}</strong> unallocated
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            {% if overflow_is_overspent %}
+            <div class="alert alert-error" style="margin-top: 12px; font-size: 13px; color: #7b2020;">
+                <strong>Overflow Warning:</strong> Please reduce budget by <strong style="color: #c53030;">${{
+                    overflow_consumed - overflow_available | abs | round(2) }}</strong> if you want to make the numbers
+                above work,
+                since you have overspent the maximum
+                allocated overflow by <strong style="color: #c53030;">${{ overflow_consumed - overflow_available | abs |
+                    round(2) }}</strong>
+            </div>
+            {% endif %}
+
+            <div class="section-label" style="margin-top: 12px; margin-bottom: 16px;">
+                What You Can Spend Today
+            </div>
+            <table width="100%" cellpadding="8" cellspacing="0" class="data-table">
+                <tr class="table-header">
+                    <th align="left">Category</th>
+                    <th align="right">Left</th>
+                    <th align="right">Per Day</th>
+                    <th align="right" style="font-weight: 800;">Today</th>
+                </tr>
+                {% for c in spendable_overviews %}
+                {% set spendable_color = "#2e7d5b" if c.spendable_amount > 0 else "#c53030" if c.spendable_amount < 0
+                    else "#2d2a26" %} {% set future_color="#2e7d5b" if c.future_daily> 0 else "#c53030" if
+                    c.future_daily < 0 else "#2d2a26" %} {% set today_color="#2e7d5b" if c.left_today> 0 else "#c53030"
+                        if c.left_today < 0 else "#2d2a26" %} <tr>
+                            <td class="table-cell">{{ c.category }}</td>
+                            <td align="right" class="table-cell" style="color: {{ spendable_color }};">
+                                ${{ "{:,.2f}".format(c.spendable_amount) }}
+                            </td>
+                            <td align="right" class="table-cell" style="color: {{ future_color }};">
+                                ${{ "{:,.2f}".format(c.future_daily) }}
+                            </td>
+                            <td align="right" class="table-cell text-heavy" style="color: {{ today_color }};">
+                                ${{ "{:,.2f}".format(c.left_today) }}
+                            </td>
+                            </tr>
+                            {% endfor %}
+            </table>
+        </div>
+
+        <hr class="divider">
+
+        {# ── Where Your Money Goes (budget breakdown table) ── #}
+        <div class="card" style="margin-bottom: 4px;">
+            <div class="section-label">
+                Budget Breakdown
+            </div>
+
+            <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 14px;">
+                {# Income #}
+                <tr>
+                    <td class="breakdown-row">
+                        <table cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td style="width: 12px; vertical-align: top; padding-top: 4px;">
+                                    <div class="color-dot" style="background: #2e7d5b;"></div>
+                                </td>
+                                <td style="padding-left: 10px;">
+                                    <div class="text-bold" style="font-size: 14px; color: #2e7d5b;">Income This Period
+                                    </div>
+                                    <div class="text-sm muted">Deposited to checking</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td align="right" class="breakdown-row">
+                        <div class="breakdown-amount" style="color: #2e7d5b;">
+                            <span style="margin-right: 4px;">+</span>${{
+                            "{:,.2f}".format(budget_stats.income_at_period_start) }}
+                        </div>
+                    </td>
+                </tr>
+
+                {# Bills & Must-Pays #}
+                <tr>
+                    <td class="breakdown-row">
+                        <table cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td style="width: 12px; vertical-align: top; padding-top: 4px;">
+                                    <div class="color-dot" style="background: #ea580c;"></div>
+                                </td>
+                                <td style="padding-left: 10px;">
+                                    <div class="text-bold" style="font-size: 14px; color: #ea580c;">Bills &amp;
+                                        Must-Pays</div>
+                                    <div class="text-sm muted">Rent, debt, insurance, subscriptions, etc.</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td align="right" class="breakdown-row">
+                        <div class="breakdown-amount" style="color: #ea580c;">
+                            <span style="margin-right: 4px;">-</span>${{
+                            "{:,.2f}".format(budget_stats.total_withheld_required_payments) }}
+                        </div>
+                    </td>
+                </tr>
+
+                {# Savings Goals #}
+                <tr>
+                    <td class="breakdown-row">
+                        <table cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td style="width: 12px; vertical-align: top; padding-top: 4px;">
+                                    <div class="color-dot" style="background: #6b46c1;"></div>
+                                </td>
+                                <td style="padding-left: 10px;">
+                                    <div class="text-bold" style="font-size: 14px; color: #6b46c1;">Savings Goals</div>
+                                    <div class="text-sm muted">Vacation, concerts, emergency fund, etc.</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td align="right" class="breakdown-row">
+                        <div class="breakdown-amount" style="color: #6b46c1;">
+                            <span style="margin-right: 4px;">-</span>${{
+                            "{:,.2f}".format(budget_stats.total_withheld_savings) }}
+                        </div>
+                    </td>
+                </tr>
+
+                {# Equals: Available for spending #}
+                <tr>
+                    <td class="breakdown-row">
+                        <table cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td style="width: 12px; vertical-align: top; padding-top: 4px;"></td>
+                                <td style="padding-left: 10px;">
+                                    <div class="text-heavy" style="font-size: 14px;">Available for spending</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td align="right" class="breakdown-row">
+                        <div class="breakdown-amount text-heavy" style="color: #2d2a26;">
+                            <span style="margin-right: 4px;">=</span>${{
+                            "{:,.2f}".format(budget_stats.budget_after_withheld) }}
+                        </div>
+                    </td>
+                </tr>
+
+                {# Spending Money #}
+                <tr>
+                    <td class="breakdown-row">
+                        <table cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td style="width: 12px; vertical-align: top; padding-top: 4px;">
+                                    <div class="color-dot" style="background: #2b6cb0;"></div>
+                                </td>
+                                <td style="padding-left: 10px;">
+                                    <div class="text-bold" style="font-size: 14px; color: #2b6cb0;">Your spending budget
+                                    </div>
+                                    <div class="text-sm muted">Food, fun, gas, shopping, etc.</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td align="right" class="breakdown-row">
+                        <div class="breakdown-amount" style="color: #2b6cb0;">
+                            <span style="margin-right: 4px;">-</span>${{
+                            "{:,.2f}".format(budget_stats.allocated_spending_budget) }}
+                        </div>
+                    </td>
+                </tr>
+
+                {# Equals: Overflow #}
+                <tr>
+                    <td class="breakdown-row-total">
+                        <table cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td style="width: 12px; vertical-align: top; padding-top: 4px;"></td>
+                                <td style="padding-left: 10px;">
+                                    <div class="text-heavy" style="font-size: 14px;">Overflow</div>
+                                    <div class="text-sm muted">Not budgeted yet</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td align="right" class="breakdown-row-total">
+                        <div class="breakdown-amount text-heavy"
+                            style="color: {% if budget_stats.budget_after_withheld_and_spending >= 0 %}#2d2a26{% else %}#c53030{% endif %};">
+                            <span style="margin-right: 4px;">=</span>${{
+                            "{:,.2f}".format(budget_stats.budget_after_withheld_and_spending) }}
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            {# Build transfer breakdown map from budgets #}
+            {% set transfer_breakdown = {} %}
+            {% for t in transfer_overviews %}
+            {% set items = [] %}
+            {% for b in budgets if b.paid_from == t.to_account and b.expense_type.name in ["RequiredPayment",
+            "Saving"] %}
+            {% set amt = (b.amount / b.timeframe) * period_size %}
+            {% if amt > 0 %}
+            {% set _ = items.append({'description': b.description, 'amount': amt, 'type': b.expense_type.name}) %}
+            {% endif %}
+            {% endfor %}
+            {% set _ = transfer_breakdown.update({loop.index0: items|sort(attribute='amount', reverse=True)}) %}
+            {% endfor %}
+
+            <div class="transfer-section">
+                <div class="section-label">
+                    Transfers to Make
+                </div>
+
+                {% for t in transfer_overviews %}
+                {% set breakdown = transfer_breakdown[loop.index0] %}
+                <div class="transfer-item">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td valign="middle">
+                                <span class="transfer-badge">{{ t.from_account }}</span>
+                                <span class="transfer-arrow">&rarr;</span>
+                                <span class="transfer-badge">{{ t.to_account }}</span>
+                            </td>
+                            <td align="right" valign="middle">
+                                <div class="transfer-amount">
+                                    ${{ "{:,.2f}".format(t.amount) }}
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    {% if breakdown|length > 0 %}
+                    <div class="transfer-breakdown">
+                        <div class="transfer-breakdown-header">Breakdown:</div>
+                        <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 12px;">
+                            {% for item in breakdown %}
+                            <tr>
+                                <td style="padding: 4px 0; border-bottom: 1px solid #f2efeb;">
+                                    <span
+                                        class="badge {% if item.type == 'RequiredPayment' %}badge-bill{% else %}badge-saving{% endif %}"
+                                        style="font-size: 10px; padding: 1px 5px; margin-right: 4px;">
+                                        {{ "Bill" if item.type == "RequiredPayment" else "Save" }}
+                                    </span>
+                                    {{ item.description }}
+                                </td>
+                                <td align="right" class="text-bold nowrap"
+                                    style="padding: 4px 0; border-bottom: 1px solid #f2efeb; color: #2d2a26;">
+                                    ${{ "{:,.2f}".format(item.amount) }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        {# ═══════════ ACCOUNTS NEEDING ATTENTION ════════════════ #}
+        {% set accounts_needing_attention = account_balances|selectattr('amount_diff', '!=', 0)|list %}
+        {% if accounts_needing_attention|length > 0 %}
+        <div class="alert alert-warning" style="font-size: 13px; color: #744210; line-height: 1.6; padding: 14px 16px;">
+            <strong>Account Balances Need Attention</strong>
+            <div class="text-sm" style="color: #92600e; margin-bottom: 10px;">
+                Your balances don't match the spreadsheet. Please review the Google Sheet.
+            </div>
+
+            <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 13px;">
+                <tr style="border-bottom: 1px solid #e2c87d;">
+                    <th align="left" class="attn-th">Account</th>
+                    <th align="right" class="attn-th">
+                        <a href="{{ meta.spreadsheet_url }}"
+                            style="color: #92600e; text-decoration: underline;">Sheet</a>
+                    </th>
+                    <th align="right" class="attn-th">Expected</th>
+                    <th align="right" class="attn-th">Diff</th>
+                </tr>
+                {% for a in accounts_needing_attention %}
+                <tr>
+                    <td class="attn-td" style="font-weight: 600; color: #744210;">
+                        {{ a.name }}</td>
+                    <td align="right" class="attn-td" style="color: #c53030; font-weight: 600;">
+                        ${{ "{:,.2f}".format(a.amount_manual) }}</td>
+                    <td align="right" class="attn-td" style="color: #744210;">
+                        ${{ "{:,.2f}".format(a.amount_calc) }}</td>
+                    <td align="right" class="attn-td" style="font-weight: 600; color: #c53030;">
+                        {% if a.amount_diff < 0 %} ${{ "{:,.2f}" .format(a.amount_diff|abs) }} under {% else %}
+                            ${{ "{:,.2f}" .format(a.amount_diff) }} over {% endif %} </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <hr class="divider">
+        {% endif %}
+
+        {# ═══════════ FOOTER ═══════════ #}
+        <div class="footer">
+            * Remember to update the spreadsheet daily!<br>
+            * Email sent automatically at {{ time }}.<br>
+            * Made with love by yours truly &lt;3
+            <div style="margin-top: 8px;">
+                <strong style="color: #2d2a26;">Full spreadsheet:</strong><br>
+                <a href="{{ meta.spreadsheet_url }}" style="color: #2b6cb0; word-break: break-all;">{{
+                    meta.spreadsheet_url }}</a>
+            </div>
+        </div>
+
+</body>
+
+</html>
