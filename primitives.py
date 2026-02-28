@@ -509,6 +509,7 @@ class Summary:
     time: str
     horoscope: Optional[str] = None
     horoscope_url: Optional[str] = None
+    custom_alert: Optional[str] = None
 
     def to_email_html(self, template_path: str = "budget-email.html") -> str:
         env = Environment(loader=FileSystemLoader("."))
@@ -577,6 +578,7 @@ class Summary:
             overflow_pct=overflow_pct,
             overflow_consumed=overflow_consumed,
             overflow_available=overflow_available,
+            custom_alert=self.custom_alert,
         )
 
     def to_email_subject(self) -> str:

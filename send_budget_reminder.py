@@ -219,6 +219,13 @@ def main():
         default=8000,
         help="Port for HTTP server in debug mode (default: 8000)",
     )
+    parser.add_argument(
+        "--alert",
+        dest="alert",
+        type=str,
+        required=False,
+        help="Custom alert message to display at the top of the email. Can be a string or path to a file containing the message.",
+    )
     args = parser.parse_args()
 
     # --------------------------------------------------
@@ -239,6 +246,23 @@ def main():
         new_handler.setFormatter(logging.Formatter(DEFAULT_LOG_FORMAT))
         logger.addHandler(new_handler)
         logger.setLevel(DEFAULT_LOG_LEVEL)
+
+    # --------------------------------------------------
+    # process custom alert (if provided)
+    # --------------------------------------------------
+    custom_alert = None
+    if args.alert:
+        alert_path = Path(args.alert)
+        if alert_path.is_file():
+            # --------------------------------------------------
+            # read alert from file
+            # --------------------------------------------------
+            custom_alert = alert_path.read_text().strip()
+        else:
+            # --------------------------------------------------
+            # treat as literal string
+            # --------------------------------------------------
+            custom_alert = args.alert
 
     # --------------------------------------------------
     # get config
@@ -365,6 +389,7 @@ def main():
             transfer_overviews=transfer_overviews,
             horoscope=horoscope,
             horoscope_url=horoscope_url,
+            custom_alert=custom_alert,
         )
 
         if args.debug:

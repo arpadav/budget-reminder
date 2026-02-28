@@ -107,6 +107,18 @@
             border-left: 4px solid #4a90e2;
         }
 
+        .alert-custom {
+            background: #ffe5e5;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            text-align: center;
+            font-style: italic;
+            color: #c53030;
+            line-height: 1.6;
+        }
+
         .footer {
             background: #edeae7;
             border-radius: 8px;
@@ -446,6 +458,12 @@
             </table>
         </div>
 
+        {# ═══════════ CUSTOM ALERT MESSAGE ═══════════ #}
+        {% if custom_alert %}
+        <div class="alert-custom">
+            {{ custom_alert }}
+        </div>
+        {% endif %}
 
         {# ═══════════ STATUS BANNER ═══════════ #}
         {% if budget_stats.overspent_hard %}
