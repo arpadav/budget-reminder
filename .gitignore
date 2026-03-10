@@ -8,4 +8,6 @@
 **/*.log
 **/*.html
 
+horoscopes/
+
 !budget-email.html

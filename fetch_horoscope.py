@@ -4,8 +4,9 @@
 import logging
 import requests
 from enum import Enum
-from typing import Optional
 from bs4 import BeautifulSoup
+from typing import List, Optional
+from dataclasses import dataclass
 from bs4.element import NavigableString, Tag
 from playwright.sync_api import Route, sync_playwright
 
@@ -26,6 +27,40 @@ class ZodiacSign(Enum):
 
     def __str__(self):
         return self.value
+
+
+@dataclass
+class HoroscopeCriterion:
+    action: str  # "find" | "find_all" | "find_first_text"
+    tag: Optional[str] = None
+    class_name: Optional[str] = None
+    text_prefixes: Optional[List[str]] = None
+
+
+# --------------------------------------------------
+# fallback: navigate the tree to the horoscope paragraph via its
+# unique ancestor chain (app-horoscope-table-list > div.zodiac-table
+# > div.strapi_bg > div.content-page), then take the first <p>.
+# --------------------------------------------------
+HOROSCOPE_CRITERIA_TREE: List[HoroscopeCriterion] = [
+    HoroscopeCriterion(action="find", tag="app-horoscope-table-list"),
+    HoroscopeCriterion(action="find", tag="div", class_name="zodiac-table"),
+    HoroscopeCriterion(action="find", tag="div", class_name="strapi_bg"),
+    HoroscopeCriterion(action="find", tag="div", class_name="content-page"),
+    HoroscopeCriterion(action="find_first_text", tag="p"),
+]
+# --------------------------------------------------
+# primary: search all content-page divs for a paragraph starting with "Dear "
+# --------------------------------------------------
+HOROSCOPE_CRITERIA_DEAR: List[HoroscopeCriterion] = [
+    HoroscopeCriterion(action="find", tag="div", class_name="content-page"),
+    HoroscopeCriterion(action="find_all", tag="p"),
+    HoroscopeCriterion(action="find_first_text", text_prefixes=["Dear "]),
+]
+HOROSCOPE_CRITERIA: List[List[HoroscopeCriterion]] = [
+    HOROSCOPE_CRITERIA_DEAR,
+    HOROSCOPE_CRITERIA_TREE,
+]
 
 
 def _get_and_render(url: str, selector: str = "") -> BeautifulSoup:
@@ -152,9 +187,81 @@ def _birthday_to_zodiac_sign(day: int, month: int) -> ZodiacSign:
         )  # should never reach here due to validation, but just in case
 
 
+def _apply_criteria(
+    soup: BeautifulSoup, criteria: List[HoroscopeCriterion]
+) -> Optional[str]:
+    """Applies a `HoroscopeCriterion` to a soup, in attempt to extract
+    the horoscope text
+
+    Args:
+        soup: The BeautifulSoup
+        criteria: A list of HoroscopeCriterion
+
+    Returns:
+        An optional found text, None if not found.
+    """
+    current = soup
+    for criterion in criteria:
+        # --------------------------------------------------
+        # simple find
+        # --------------------------------------------------
+        if criterion.action == "find":
+            current = current.find(criterion.tag, class_=criterion.class_name)
+            if not current:
+                return None
+        # --------------------------------------------------
+        # simple find_all
+        # --------------------------------------------------
+        elif criterion.action == "find_all":
+            current = current.find_all(criterion.tag)
+            if not current:
+                return None
+        # --------------------------------------------------
+        # find first instance, more complicated but faster
+        # --------------------------------------------------
+        elif criterion.action == "find_first_text":
+            elements = current if isinstance(current, list) else [current]
+            if criterion.tag:
+                expanded = []
+                for el in elements:
+                    if el.name == criterion.tag:
+                        expanded.append(el)
+                    else:
+                        expanded.extend(el.find_all(criterion.tag))
+                elements = expanded
+            for element in elements:
+                # --------------------------------------------------
+                # init text, search for in element
+                # --------------------------------------------------
+                text = None
+                for child in element.contents:
+                    if isinstance(child, NavigableString):
+                        _text = child.strip()
+                        if _text:
+                            text = _text
+                            break
+                    elif isinstance(child, Tag):
+                        _text = child.get_text(strip=True)
+                        if _text:
+                            text = _text
+                            break
+                # --------------------------------------------------
+                # if not found, continue to next element
+                # --------------------------------------------------
+                if not text:
+                    continue
+                if criterion.text_prefixes:
+                    if any(text.startswith(p) for p in criterion.text_prefixes):
+                        return text
+                else:
+                    return text
+            return None
+    return None
+
+
 def _horoscope_request(sign: ZodiacSign) -> Optional[tuple[str, str]]:
     """
-    Fetch horoscope content from the given URL.
+    Fetch horoscope content for a zodiac sign. Uses `astroyogi.com`.
 
     Args:
         url: The URL to fetch the horoscope from
@@ -167,67 +274,42 @@ def _horoscope_request(sign: ZodiacSign) -> Optional[tuple[str, str]]:
         # --------------------------------------------------
         # make request
         # --------------------------------------------------
-        selector = f"div.content-page"
-        typ, cls = selector.split(".")
+        selector = "div.content-page"
         soup = _get_and_render(
             url, selector
         )  # render the page with playwright to get dynamic content
         # --------------------------------------------------
-        # * find the horoscope content
-        # * the main horoscope is in a div with class "content-page"
-        # * extract the paragraph with the horoscope text
-        # * the horoscope starts with "Dear [Sign]"
+        # try each criteria list in order, use the first match
         # --------------------------------------------------
-        # TODO: if anything is wrong with the page structure, this will break, and
-        # it should be fixed here.
-        # --------------------------------------------------
-        content_div = soup.find(typ, class_=cls)
-        if not content_div:
-            logging.error("Could not find content div with selector: %s", selector)
-            return None
-        paragraphs = content_div.find_all("p")
-        for p in paragraphs:
-            # --------------------------------------------------
-            # pick the first non-empty child (text node or tag) inside the paragraph
-            # --------------------------------------------------
-            first_child_text = None
-            for child in p.contents:
-                if isinstance(child, NavigableString):
-                    txt = child.strip()
-                    if txt:
-                        first_child_text = txt
-                        break
-                elif isinstance(child, Tag):
-                    txt = child.get_text(strip=True)
-                    if txt:
-                        first_child_text = txt
-                        break
-            # --------------------------------------------------
-            # check if the first child text starts with "Dear "
-            # --------------------------------------------------
-            if first_child_text and first_child_text.startswith("Dear "):
-                # --------------------------------------------------
-                # find and replace "Astroyogi a" with "a"
-                # --------------------------------------------------
-                first_child_text = first_child_text.replace("Astroyogi a", "a")
-                # --------------------------------------------------
-                # ensure all sentence beginnings start with a capital
-                # letters (some of them are lowercase in the source)
-                # --------------------------------------------------
-                sentences = first_child_text.split(". ")
-                sentences = [s[:1].upper() + s[1:] if s else s for s in sentences]
-                first_child_text = ". ".join(sentences)
-                # --------------------------------------------------
-                # return the horoscope text and URL
-                # --------------------------------------------------
-                return first_child_text, url
+        first_child_text = None
+        for criteria_list in HOROSCOPE_CRITERIA:
+            result = _apply_criteria(soup, criteria_list)
+            if result is not None:
+                first_child_text = result
+                break
         # --------------------------------------------------
         # return None if not found
         # --------------------------------------------------
-        logging.error(
-            "Could not find horoscope paragraph starting with 'Dear' in the content div"
-        )
-        return None
+        if not first_child_text:
+            logging.error(
+                "Could not find horoscope paragraph matching any criteria in the content div"
+            )
+            return None
+        # --------------------------------------------------
+        # find and replace "Astroyogi a" with "a"
+        # --------------------------------------------------
+        first_child_text = first_child_text.replace("Astroyogi a", "a")
+        # --------------------------------------------------
+        # ensure all sentence beginnings start with a capital
+        # letters (some of them are lowercase in the source)
+        # --------------------------------------------------
+        sentences = first_child_text.split(". ")
+        sentences = [s[:1].upper() + s[1:] if s else s for s in sentences]
+        first_child_text = ". ".join(sentences)
+        # --------------------------------------------------
+        # return the horoscope text and URL
+        # --------------------------------------------------
+        return first_child_text, url
 
     # --------------------------------------------------
     # catch and log any exceptions that occur during the request or parsing
@@ -267,3 +349,13 @@ def get_horoscope_for_birthday(birthday: str) -> Optional[tuple[str, str]]:
     except ValueError:
         logging.exception("Error processing horoscope request")
         return None
+
+
+if __name__ == "__main__":
+    for sign in ZodiacSign:
+        result = _horoscope_request(sign)
+        if result:
+            text, _ = result
+            print(f"OK   {sign.value:12s} {text[:80]}...")
+        else:
+            print(f"FAILED {sign.value}")
