@@ -187,32 +187,38 @@ def _birthday_to_zodiac_sign(day: int, month: int) -> ZodiacSign:
         )  # should never reach here due to validation, but just in case
 
 
-def _extract_text(element: Tag) -> Optional[str]:
-    for child in element.contents:
-        if isinstance(child, NavigableString):
-            txt = child.strip()
-            if txt:
-                return txt
-        elif isinstance(child, Tag):
-            txt = child.get_text(strip=True)
-            if txt:
-                return txt
-    return None
-
-
 def _apply_criteria(
     soup: BeautifulSoup, criteria: List[HoroscopeCriterion]
 ) -> Optional[str]:
+    """Applies a `HoroscopeCriterion` to a soup, in attempt to extract
+    the horoscope text
+
+    Args:
+        soup: The BeautifulSoup
+        criteria: A list of HoroscopeCriterion
+
+    Returns:
+        An optional found text, None if not found.
+    """
     current = soup
     for criterion in criteria:
+        # --------------------------------------------------
+        # simple find
+        # --------------------------------------------------
         if criterion.action == "find":
             current = current.find(criterion.tag, class_=criterion.class_name)
             if not current:
                 return None
+        # --------------------------------------------------
+        # simple find_all
+        # --------------------------------------------------
         elif criterion.action == "find_all":
             current = current.find_all(criterion.tag)
             if not current:
                 return None
+        # --------------------------------------------------
+        # find first instance, more complicated but faster
+        # --------------------------------------------------
         elif criterion.action == "find_first_text":
             elements = current if isinstance(current, list) else [current]
             if criterion.tag:
@@ -224,7 +230,24 @@ def _apply_criteria(
                         expanded.extend(el.find_all(criterion.tag))
                 elements = expanded
             for element in elements:
-                text = _extract_text(element)
+                # --------------------------------------------------
+                # init text, search for in element
+                # --------------------------------------------------
+                text = None
+                for child in element.contents:
+                    if isinstance(child, NavigableString):
+                        _text = child.strip()
+                        if _text:
+                            text = _text
+                            break
+                    elif isinstance(child, Tag):
+                        _text = child.get_text(strip=True)
+                        if _text:
+                            text = _text
+                            break
+                # --------------------------------------------------
+                # if not found, continue to next element
+                # --------------------------------------------------
                 if not text:
                     continue
                 if criterion.text_prefixes:
@@ -264,6 +287,9 @@ def _horoscope_request(sign: ZodiacSign) -> Optional[tuple[str, str]]:
             if result is not None:
                 first_child_text = result
                 break
+        # --------------------------------------------------
+        # return None if not found
+        # --------------------------------------------------
         if not first_child_text:
             logging.error(
                 "Could not find horoscope paragraph matching any criteria in the content div"
