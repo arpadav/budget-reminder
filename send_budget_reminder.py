@@ -1,6 +1,8 @@
 # --------------------------------------------------
 # external
 # --------------------------------------------------
+# fmt: off
+import io
 import sys
 import toml
 import logging
@@ -8,9 +10,10 @@ import argparse
 from pathlib import Path
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any, Optional, List
+from typing import Any, List, Optional
 from google.oauth2 import service_account
 from googleapiclient.discovery import build  # type: ignore
+
 
 # --------------------------------------------------
 # local
@@ -20,6 +23,7 @@ import email_client
 from helpers import LogTimer
 from debug_server import debug_mode
 from fetch_horoscope import get_horoscope_for_birthday
+# fmt: on
 
 # --------------------------------------------------
 # configure logging
@@ -49,7 +53,11 @@ class GoogleSpreadsheet:
             with LogTimer("initializing Google Sheets API client"):
                 self.sheet = self.service.spreadsheets()
         with LogTimer(f"querying range '{range}'"):
-            result = self.sheet.values().get(spreadsheetId=self.spreadsheet_id, range=range).execute()  # type: ignore
+            result = (
+                self.sheet.values()
+                .get(spreadsheetId=self.spreadsheet_id, range=range)
+                .execute()
+            )  # type: ignore
         return result.get("values", [])
 
 
@@ -126,9 +134,13 @@ class GoogleAccount:
                 service_account_path = cfg["accounts"][account_name][
                     SERVICE_ACCOUNT_FILE_KEY
                 ]
-                sheet_credentials = service_account.Credentials.from_service_account_file(  # type: ignore
-                    service_account_path,
-                    scopes=["https://www.googleapis.com/auth/spreadsheets.readonly"],
+                sheet_credentials = (
+                    service_account.Credentials.from_service_account_file(  # type: ignore
+                        service_account_path,
+                        scopes=[
+                            "https://www.googleapis.com/auth/spreadsheets.readonly"
+                        ],
+                    )
                 )
                 service = build("sheets", "v4", credentials=sheet_credentials)  # type: ignore
                 recipient_account = BudgetRecipientAccount(
@@ -246,6 +258,14 @@ def main():
         new_handler.setFormatter(logging.Formatter(DEFAULT_LOG_FORMAT))
         logger.addHandler(new_handler)
         logger.setLevel(DEFAULT_LOG_LEVEL)
+
+    # --------------------------------------------------
+    # in-memory handler to capture this run's log output
+    # --------------------------------------------------
+    _log_buffer = io.StringIO()
+    _mem_handler = logging.StreamHandler(_log_buffer)
+    _mem_handler.setFormatter(logging.Formatter(DEFAULT_LOG_FORMAT))
+    logging.getLogger().addHandler(_mem_handler)
 
     # --------------------------------------------------
     # process custom alert (if provided)
@@ -407,13 +427,31 @@ def main():
                     cc=[],
                     bcc=[account.email],
                 )
-
-    except Exception as e:
-        logging.exception("Error occurred during budget reminder execution")
-        print(f"Error occurred during budget reminder execution: {e}")
+    except Exception:
         import traceback
 
-        traceback.print_exc()
+        tb = traceback.format_exc()
+        logging.exception("Error occurred during budget reminder execution")
+        print(f"Fatal error during budget reminder execution:\n{tb}")
+        # --------------------------------------------------
+        # attempt to notify via email
+        # --------------------------------------------------
+        try:
+            from_email = cfg.get("from-gmail")
+            app_pwd_path = cfg.get("from-gmail-app-pwd-file")
+            if from_email and app_pwd_path:
+                app_password = Path(app_pwd_path).read_text().strip()
+                run_log = _log_buffer.getvalue()
+                body = "<h3>Traceback</h3><pre>{}</pre>".format(tb)
+                if run_log:
+                    body += "<h3>Full Log</h3><pre>{}</pre>".format(run_log)
+                email_client.EmailClient(from_email, app_password).send_email(
+                    subject="[budget-reminder] Fatal error",
+                    body_html=body,
+                    to=[from_email],
+                )
+        except Exception:
+            logging.exception("Failed to send error notification email")
         sys.exit(1)
 
 
