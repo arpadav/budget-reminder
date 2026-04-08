@@ -1,16 +1,16 @@
 # --------------------------------------------------
 # external
 # --------------------------------------------------
-import os
-import sys
-import time
-import threading
-import webbrowser
 import http.server
+import os
 import socketserver
-from typing import Any
-from pathlib import Path
+import sys
+import threading
+import time
+import webbrowser
 from datetime import datetime
+from pathlib import Path
+from typing import Any
 
 # --------------------------------------------------
 # local
@@ -98,11 +98,11 @@ def debug_mode(
     # --------------------------------------------------
     # initial render
     # --------------------------------------------------
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"DEBUG MODE - Watching '{template_name}' for changes")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Output file: {output_file}")
-    print(f"Commands: 'r' to restart (+ optionally change port), 'q' to quit\n")
+    print("Commands: 'r' to restart (+ optionally change port), 'q' to quit\n")
     if not render_html():
         return
     if not start_server():
